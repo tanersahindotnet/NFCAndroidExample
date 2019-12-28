@@ -4,7 +4,6 @@ using System.Runtime.Remoting.Metadata.W3cXsd2001;
 using Android.App;
 using Android.Content;
 using Android.Nfc;
-using Android.Nfc.Tech;
 using Android.OS;
 using Android.Runtime;
 using Android.Support.V7.App;
@@ -42,6 +41,7 @@ namespace NFCAndroidExample
             }
             else
             {
+                //Set events and filters
                 var tagDetected = new IntentFilter(NfcAdapter.ActionTagDiscovered);
                 var ndefDetected = new IntentFilter(NfcAdapter.ActionNdefDiscovered);
                 var techDetected = new IntentFilter(NfcAdapter.ActionTechDiscovered);
@@ -51,25 +51,7 @@ namespace NFCAndroidExample
 
                 var pendingIntent = PendingIntent.GetActivity(this, 0, intent, 0);
 
-                _nfcAdapter.EnableForegroundDispatch(this, pendingIntent, filters,
-                    new[]
-                    {new[] {
-                            Ndef.NfcForumType1
-                        },
-                        new[] {
-                            Ndef.NfcForumType2
-                        },
-                        new[] {
-                            Ndef.NfcForumType3
-                        },
-                        new[] {
-                            Ndef.NfcForumType4
-                        },
-                        new[] {
-                            Ndef.MifareClassic
-                        },
-                    }
-                );
+                _nfcAdapter.EnableForegroundDispatch(this, pendingIntent, filters, null);
             }
         }
 
@@ -81,12 +63,13 @@ namespace NFCAndroidExample
             var tagIdBytes = myTag.GetId();
             var tagIdString = ByteArrayToString(tagIdBytes);
             var reverseHex = LittleEndian(tagIdString);
-            var cardId = Convert.ToInt32(reverseHex, 16);
+            var cardId = Convert.ToInt32(reverseHex, 16); //Convert to Decimal. So we can get the value
             var alertMessage = new Android.App.AlertDialog.Builder(this).Create();
             alertMessage.SetMessage("CardId:" + cardId);
             alertMessage.Show();
         }
 
+        //Convert Reversed Hex to Hex
         private static string LittleEndian(string num)
         {
             var number = Convert.ToInt32(num, 16);

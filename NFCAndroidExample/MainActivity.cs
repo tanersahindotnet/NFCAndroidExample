@@ -109,8 +109,8 @@ namespace NFCAndroidExample
         /// The first step is to create the different parts payload, record, and the Ndef message which will be written on the tag.
         /// Don't forget to call the Connect method before writing to the tag, otherwise, an exception will be thrown.
         /// </summary>
-        /// <param name="intent"></param>
-        /// <param name="content"></param>
+        /// <param name="intent">Current intent</param>
+        /// <param name="content">Your Message</param>
         public void WriteToTag(Intent intent, string content)
         {
             if (!(intent.GetParcelableExtra(NfcAdapter.ExtraTag) is Tag tag)) return;

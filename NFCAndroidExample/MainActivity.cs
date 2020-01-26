@@ -22,9 +22,9 @@ namespace NFCAndroidExample
             base.OnCreate(savedInstanceState);
             Xamarin.Essentials.Platform.Init(this, savedInstanceState);
             SetContentView(Resource.Layout.activity_main);
-
             var toolbar = FindViewById<Android.Support.V7.Widget.Toolbar>(Resource.Id.toolbar);
             SetSupportActionBar(toolbar);
+            //Set NFC Adapter
             _nfcAdapter = NfcAdapter.GetDefaultAdapter(this);
         }
 
@@ -51,25 +51,35 @@ namespace NFCAndroidExample
 
                 var pendingIntent = PendingIntent.GetActivity(this, 0, intent, 0);
 
+                // Gives your current foreground activity priority in receiving NFC events over all other activities.
                 _nfcAdapter.EnableForegroundDispatch(this, pendingIntent, filters, null);
             }
         }
 
+        /// <summary>
+        /// If there's a new detection OnNewIntent will catch it
+        /// </summary>
+        /// <param name="intent"></param>
         protected override void OnNewIntent(Intent intent)
         {
             if (intent.Action != NfcAdapter.ActionTagDiscovered) return;
             var myTag = (Tag)intent.GetParcelableExtra(NfcAdapter.ExtraTag);
             if (myTag == null) return;
             var tagIdBytes = myTag.GetId();
-            var tagIdString = ByteArrayToString(tagIdBytes);
-            var reverseHex = LittleEndian(tagIdString);
-            var cardId = Convert.ToInt32(reverseHex, 16); //Convert to Decimal. So we can get the value
+            var tagIdString = ByteArrayToString(tagIdBytes); //Byte array converted to string
+            var reverseHex = LittleEndian(tagIdString); // Reversed hex converted to hex
+            var cardId = Convert.ToInt64(reverseHex, 16); //Convert to decimal decimal to get the final value
             var alertMessage = new Android.App.AlertDialog.Builder(this).Create();
-            alertMessage.SetMessage("CardId:" + cardId);
+            alertMessage.SetMessage("CardId:" + cardId); // Here's the id of card
             alertMessage.Show();
         }
 
-        //Convert Reversed Hex to Hex
+        /// <summary>
+        /// In my case card id values returned as reversed hex format.
+        /// To solve that problem need to convert reversed hex to hex.
+        /// </summary>
+        /// <param name="num"></param>
+        /// <returns></returns>
         private static string LittleEndian(string num)
         {
             var number = Convert.ToInt32(num, 16);
